@@ -1,0 +1,36 @@
+[package]
+name = "sizer-codecs-image"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Image recompression codecs (PNG lossless, JPEG lossy). PngCodec is native-only (oxipng depends unconditionally on the C library libdeflate); JpegCodec is pure Rust and builds for wasm32 too."
+
+[dependencies]
+sizer-core = { path = "../sizer-core" }
+async-trait.workspace = true
+image = { version = "0.25", default-features = false, features = ["png", "jpeg"] }
+jpeg-encoder = "0.6"
+
+# Native-only: see run_blocking in lib.rs -- wasm32 has no OS thread pool
+# to spawn_blocking onto, and doesn't need tokio at all for that reason.
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+tokio = { version = "1", default-features = false, features = ["rt", "sync"] }
+# oxipng depends unconditionally on libdeflate-sys (a C library) for its
+# deflate backend -- not gated behind the "parallel" feature, so there is
+# no wasm32-compatible configuration of oxipng at all without a
+# wasm-capable C toolchain (same wall as zstd-sys, see
+# sizer-codecs-archive/Cargo.toml). PngCodec is native-only until that
+# toolchain gap is closed or a pure-Rust PNG path is added; see
+# docs/ARCHITECTURE.md.
+oxipng = { version = "9", default-features = false, features = ["zopfli", "parallel"] }
+
+[dev-dependencies]
+# "rt" (current-thread runtime), not "rt-multi-thread": #[tokio::test]
+# defaults to current-thread, which already includes the blocking pool
+# spawn_blocking uses -- multi-thread scheduling was never actually
+# needed here, and "rt-multi-thread" isn't in tokio's wasm32-allowed
+# feature set (unlike "rt"), which would otherwise break wasm32 checks of
+# this crate's test target.
+tokio = { version = "1", default-features = false, features = ["macros", "rt"] }

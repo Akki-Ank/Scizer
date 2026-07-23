@@ -1,0 +1,23 @@
+[package]
+name = "sizer-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Command-line front end for sizer-core. Doubles as the benchmarking harness the product spec requires every codec to be measured against."
+
+[[bin]]
+name = "sizer"
+path = "src/main.rs"
+
+[dependencies]
+sizer-core = { path = "../sizer-core" }
+sizer-codecs-image = { path = "../sizer-codecs-image" }
+sizer-codecs-video = { path = "../sizer-codecs-video" }
+sizer-registry = { path = "../sizer-registry" }
+clap.workspace = true
+tokio = { workspace = true, features = ["rt-multi-thread", "macros", "fs", "io-util", "io-std"] }
+anyhow.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true

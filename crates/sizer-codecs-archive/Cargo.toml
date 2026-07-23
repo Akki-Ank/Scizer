@@ -1,0 +1,41 @@
+[package]
+name = "sizer-codecs-archive"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Streaming gzip/zstd archive codecs implementing sizer-core::Codec, wrapping the audited flate2/zstd C libraries rather than reimplementing format parsing."
+
+[dependencies]
+sizer-core = { path = "../sizer-core" }
+async-trait.workspace = true
+# See sizer-core's Cargo.toml comment: narrow, non-workspace tokio dep so
+# this crate stays wasm32-unknown-unknown compatible for sizer-wasm.
+tokio = { version = "1", default-features = false, features = ["io-util"] }
+
+# zstd (via async-compression -> zstd-sys) wraps the real C zstd library,
+# which needs a wasm32-targeting C compiler to build -- not available in
+# every dev/CI environment, and not something to require just to get a
+# gzip codec working in the browser. gzip's C dependency (flate2) defaults
+# to the pure-Rust miniz_oxide backend, so it needs no C toolchain at all
+# and builds for wasm32 unmodified. Native builds get both codecs; wasm32
+# gets gzip only until a wasm-capable C toolchain is set up for zstd-sys
+# (see docs/ARCHITECTURE.md).
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+async-compression = { version = "0.4", features = ["tokio", "gzip", "zstd"] }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+async-compression = { version = "0.4", features = ["tokio", "gzip"] }
+
+[dev-dependencies]
+tokio = { version = "1", default-features = false, features = ["macros", "rt", "io-util", "time"] }
+
+# "rt-multi-thread" (for examples/throughput.rs's Runtime::new()) isn't in
+# tokio's wasm32-allowed feature set, so it's additive here rather than in
+# the shared dev-dependency above.
+[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
+tokio = { version = "1", default-features = false, features = ["rt-multi-thread"] }
+
+[[example]]
+name = "throughput"

@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sizer</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="drop-overlay" class="drop-overlay hidden">
+      <div class="drop-overlay-text">Drop to load</div>
+    </div>
+
+    <main class="app">
+      <header class="app-header">
+        <div class="brand">
+          <span class="brand-mark"></span>
+          <span class="brand-name">Sizer</span>
+        </div>
+        <nav class="page-switch" id="page-switch">
+          <button class="page-switch-btn active" data-page="compress">Compress</button>
+          <button class="page-switch-btn" data-page="convert">Convert</button>
+        </nav>
+        <span class="brand-status" id="status-pill">offline, local-only</span>
+      </header>
+
+      <section id="compress-page" class="page">
+      <section id="drop-zone" class="drop-zone">
+        <div class="drop-zone-inner">
+          <p class="drop-zone-title">Drop a file here</p>
+          <p class="drop-zone-subtitle">or</p>
+          <button id="browse-btn" class="btn btn-primary">Browse files</button>
+          <p class="drop-zone-hint" id="file-hint">No file selected</p>
+        </div>
+      </section>
+
+      <section id="workspace" class="workspace hidden">
+        <div class="card file-card">
+          <div class="file-info">
+            <div class="file-name" id="file-name"></div>
+            <div class="file-meta" id="file-meta"></div>
+          </div>
+          <button id="clear-btn" class="btn btn-ghost">Change file</button>
+        </div>
+
+        <div class="tabs" id="mode-tabs">
+          <button class="tab active" data-mode="archive">Archive (gzip / zstd)</button>
+          <button class="tab" data-mode="image">Image (PNG / JPEG)</button>
+          <button class="tab" data-mode="video">Video (ffmpeg)</button>
+          <button class="tab" data-mode="document">Document (PDF)</button>
+        </div>
+
+        <div class="card controls-card" id="archive-controls">
+          <div class="control-row">
+            <label for="archive-codec">Codec</label>
+            <select id="archive-codec">
+              <option value="zstd" selected>zstd (recommended)</option>
+              <option value="gzip">gzip (universal compatibility)</option>
+            </select>
+          </div>
+          <div class="control-row">
+            <label for="archive-effort">Effort <span id="archive-effort-value">50</span></label>
+            <input type="range" id="archive-effort" min="0" max="100" value="50" />
+          </div>
+          <div class="control-row checkbox-row">
+            <label><input type="checkbox" id="archive-verify" checked /> Verify integrity after compressing</label>
+          </div>
+          <div class="actions">
+            <button id="archive-compress-btn" class="btn btn-primary">Compress</button>
+            <button id="archive-decompress-btn" class="btn btn-secondary">Decompress</button>
+          </div>
+        </div>
+
+        <div class="card controls-card hidden" id="image-controls">
+          <div class="control-row">
+            <label for="image-codec">Recompress as</label>
+            <select id="image-codec">
+              <option value="png" selected>PNG (lossless)</option>
+              <option value="jpeg">JPEG (lossy)</option>
+            </select>
+          </div>
+          <div class="control-row">
+            <label for="image-effort" id="image-effort-label">Optimization effort <span id="image-effort-value">80</span></label>
+            <input type="range" id="image-effort" min="1" max="100" value="80" />
+          </div>
+          <div class="control-row checkbox-row">
+            <label><input type="checkbox" id="image-target-size-enabled" /> Set exact target size instead</label>
+          </div>
+          <div class="control-row hidden" id="image-target-size-row">
+            <label for="image-target-size">Target size (KB)</label>
+            <input type="number" id="image-target-size" min="1" step="1" value="100" />
+            <p class="drop-zone-hint">
+              JPEG only: searches quality settings for the closest output at or under this size.
+              PNG is lossless, so it has no size dial -- switch codec to JPEG above to use this.
+            </p>
+          </div>
+          <div class="control-row checkbox-row">
+            <label><input type="checkbox" id="image-fidelity" checked /> Check pixel fidelity after recompressing</label>
+          </div>
+          <div class="actions">
+            <button id="image-compress-btn" class="btn btn-primary">Recompress</button>
+          </div>
+        </div>
+
+        <div class="card controls-card hidden" id="video-controls">
+          <div class="control-row">
+            <label for="video-effort">Compression effort <span id="video-effort-value">50</span></label>
+            <input type="range" id="video-effort" min="0" max="100" value="50" />
+          </div>
+          <div class="control-row checkbox-row">
+            <label><input type="checkbox" id="video-check" checked /> Verify output duration after recompressing</label>
+          </div>
+          <p class="drop-zone-hint" id="video-hint">Requires ffmpeg installed and on PATH.</p>
+          <div class="actions">
+            <button id="video-compress-btn" class="btn btn-primary">Recompress</button>
+          </div>
+        </div>
+
+        <div class="card controls-card hidden" id="document-controls">
+          <div class="control-row">
+            <label for="document-effort">Embedded image quality <span id="document-effort-value">60</span></label>
+            <input type="range" id="document-effort" min="1" max="100" value="60" />
+          </div>
+          <p class="drop-zone-hint" id="document-hint">
+            PDF only: recompresses embedded JPEG images in place. Doesn't touch text, fonts, or other content.
+          </p>
+          <div class="actions">
+            <button id="document-compress-btn" class="btn btn-primary">Recompress</button>
+          </div>
+        </div>
+
+        <div class="card progress-card hidden" id="progress-card">
+          <div class="progress-track">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+          <div class="progress-label" id="progress-label">Working…</div>
+        </div>
+
+        <div class="card result-card hidden" id="result-card"></div>
+      </section>
+      </section>
+
+      <section id="convert-page" class="page hidden">
+        <div class="tabs" id="convert-tabs">
+          <button class="convert-tab active" data-convert-mode="image-format">Image format</button>
+          <button class="convert-tab" data-convert-mode="images-to-pdf">Images → PDF</button>
+          <button class="convert-tab" data-convert-mode="merge-pdfs">Merge PDFs</button>
+        </div>
+
+        <div class="card controls-card" id="image-format-panel">
+          <div class="file-picker" id="image-format-picker">
+            <button class="btn btn-primary" id="image-format-browse-btn">Choose image…</button>
+            <span class="file-picker-name" id="image-format-file-name">No file selected</span>
+          </div>
+          <div class="control-row">
+            <label for="image-format-target">Convert to</label>
+            <select id="image-format-target">
+              <option value="png" selected>PNG</option>
+              <option value="jpeg">JPEG</option>
+              <option value="bmp">BMP</option>
+              <option value="gif">GIF</option>
+              <option value="tiff">TIFF</option>
+              <option value="ico">ICO</option>
+            </select>
+          </div>
+          <div class="actions">
+            <button id="image-format-convert-btn" class="btn btn-primary" disabled>Convert</button>
+          </div>
+        </div>
+
+        <div class="card controls-card hidden" id="images-to-pdf-panel">
+          <div class="file-picker" id="images-to-pdf-picker">
+            <button class="btn btn-primary" id="images-to-pdf-browse-btn">Choose images…</button>
+            <span class="file-picker-name" id="images-to-pdf-file-name">No files selected</span>
+          </div>
+          <p class="drop-zone-hint">One PDF page per image, in the order you select them.</p>
+          <div class="actions">
+            <button id="images-to-pdf-convert-btn" class="btn btn-primary" disabled>Create PDF</button>
+          </div>
+        </div>
+
+        <div class="card controls-card hidden" id="merge-pdfs-panel">
+          <div class="file-picker" id="merge-pdfs-picker">
+            <button class="btn btn-primary" id="merge-pdfs-browse-btn">Choose PDFs…</button>
+            <span class="file-picker-name" id="merge-pdfs-file-name">No files selected</span>
+          </div>
+          <p class="drop-zone-hint">Pages are concatenated in the order you select the files. Pick at least two.</p>
+          <div class="actions">
+            <button id="merge-pdfs-convert-btn" class="btn btn-primary" disabled>Merge</button>
+          </div>
+        </div>
+
+        <div class="card result-card hidden" id="convert-result-card"></div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

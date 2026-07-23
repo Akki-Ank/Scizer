@@ -1,0 +1,20 @@
+[package]
+name = "sizer-codecs-document"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Document structural recompression. PdfCodec re-encodes embedded JPEG image streams smaller via lopdf (pure Rust PDF parser, no C dependency) + sizer-codecs-image's JpegCodec -- it does not rasterize/re-render pages, only recompresses embedded raster images in place."
+
+[dependencies]
+sizer-core = { path = "../sizer-core" }
+sizer-codecs-image = { path = "../sizer-codecs-image" }
+async-trait.workspace = true
+tokio = { version = "1", default-features = false, features = ["rt"] }
+lopdf = { version = "0.36", default-features = false }
+
+[dev-dependencies]
+tokio = { version = "1", default-features = false, features = ["macros", "rt-multi-thread"] }
+image = { version = "0.25", default-features = false, features = ["png"] }
+jpeg-encoder = "0.6"

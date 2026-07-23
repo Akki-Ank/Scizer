@@ -1,0 +1,39 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/sizer-core",
+    "crates/sizer-cli",
+    "crates/sizer-codecs-archive",
+    "crates/sizer-codecs-image",
+    "crates/sizer-registry",
+    "crates/sizer-desktop",
+    "crates/sizer-wasm",
+    "crates/sizer-codecs-video",
+    "crates/sizer-codecs-document",
+    "crates/sizer-cloud",
+    "crates/sizer-codecs-convert",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.97"
+license = "MIT"
+repository = "https://github.com/ankitdeb/scizer"
+
+[workspace.dependencies]
+thiserror = "2"
+anyhow = "1"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "fs", "io-util"] }
+async-trait = "0.1"
+bytes = "1"
+sha2 = "0.10"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+clap = { version = "4", features = ["derive"] }
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

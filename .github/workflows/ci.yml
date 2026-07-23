@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  verify:
+    name: Format, lint, test, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # sizer-desktop is a Tauri app; its Linux build needs webkit2gtk and
+      # friends, which ubuntu-latest doesn't ship by default. ffmpeg is
+      # needed for sizer-codecs-video's tests -- they skip gracefully
+      # without it (see require_ffmpeg! in that crate), but installing it
+      # here means they actually run in CI rather than silently no-op.
+      - name: Install Tauri Linux build dependencies + ffmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libxdo-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            ffmpeg
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Format check
+        run: cargo fmt --all -- --check
+
+      - name: Lint (deny warnings)
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: Unit tests
+        run: cargo test --workspace --all-targets
+
+      - name: Build (release)
+        run: cargo build --workspace --release
+
+  wasm:
+    name: wasm32 build (sizer-wasm and its dependencies)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+          components: clippy
+
+      - uses: Swatinem/rust-cache@v2
+
+      # Only the crates sizer-wasm actually pulls in -- zstd (sizer-codecs-archive)
+      # and PNG (sizer-codecs-image) are native-only (see their Cargo.toml
+      # comments and docs/ARCHITECTURE.md), so this deliberately doesn't
+      # cover the whole workspace.
+      - name: Lint (deny warnings)
+        run: |
+          cargo clippy -p sizer-core -p sizer-codecs-archive -p sizer-codecs-image \
+            -p sizer-wasm --target wasm32-unknown-unknown --all-targets -- -D warnings
+
+      - name: Build (release)
+        run: cargo build -p sizer-wasm --target wasm32-unknown-unknown --release

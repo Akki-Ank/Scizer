@@ -1,0 +1,25 @@
+[package]
+name = "sizer-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Platform-agnostic streaming compression engine: format detection, algorithm selection, and codec traits shared by every Sizer surface (CLI, desktop, web/WASM, cloud API)."
+
+[dependencies]
+thiserror.workspace = true
+# Deliberately NOT `tokio.workspace = true`: the workspace default pulls in
+# rt-multi-thread/fs, which don't compile for wasm32-unknown-unknown. This
+# crate only uses the AsyncRead/AsyncWrite trait definitions and buffer
+# utilities under `io-util`, which are pure Rust with no OS/runtime
+# dependency -- keeping the dependency this narrow is what makes
+# sizer-wasm possible without forking sizer-core.
+tokio = { version = "1", default-features = false, features = ["io-util"] }
+async-trait.workspace = true
+bytes.workspace = true
+sha2.workspace = true
+tracing.workspace = true
+
+[dev-dependencies]
+tokio = { version = "1", default-features = false, features = ["macros", "rt", "io-util"] }

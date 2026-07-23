@@ -1,0 +1,22 @@
+[package]
+name = "sizer-wasm"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "wasm-bindgen surface exposing sizer-core to the browser. Gzip archive compression + JPEG image recompression only -- see this crate's lib.rs doc comment for why zstd/PNG aren't here yet."
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+sizer-core = { path = "../sizer-core" }
+sizer-codecs-archive = { path = "../sizer-codecs-archive" }
+sizer-codecs-image = { path = "../sizer-codecs-image" }
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+js-sys = "0.3"
+serde = { version = "1", features = ["derive"] }
+serde-wasm-bindgen = "0.6"
+console_error_panic_hook = "0.1"

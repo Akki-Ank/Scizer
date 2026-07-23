@@ -1,0 +1,15 @@
+[package]
+name = "sizer-registry"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Codec name/format -> instance lookup, shared by every surface (CLI, desktop, and eventually web/cloud) so the mapping is defined exactly once."
+
+[dependencies]
+sizer-core = { path = "../sizer-core" }
+sizer-codecs-archive = { path = "../sizer-codecs-archive" }
+sizer-codecs-image = { path = "../sizer-codecs-image" }
+sizer-codecs-video = { path = "../sizer-codecs-video" }
+sizer-codecs-document = { path = "../sizer-codecs-document" }

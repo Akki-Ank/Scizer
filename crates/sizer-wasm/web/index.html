@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sizer</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="drop-overlay" class="drop-overlay hidden">
+      <div class="drop-overlay-text">Drop to load</div>
+    </div>
+
+    <main class="app">
+      <header class="app-header">
+        <div class="brand">
+          <span class="brand-mark"></span>
+          <span class="brand-name">Sizer</span>
+        </div>
+        <span class="brand-status">runs entirely in this tab, nothing uploaded</span>
+      </header>
+
+      <section id="drop-zone" class="drop-zone">
+        <div class="drop-zone-inner">
+          <p class="drop-zone-title">Drop a file here</p>
+          <p class="drop-zone-subtitle">or</p>
+          <button id="browse-btn" class="btn btn-primary">Browse files</button>
+          <input id="file-input" type="file" class="hidden" />
+        </div>
+      </section>
+
+      <section id="workspace" class="workspace hidden">
+        <div class="card file-card">
+          <div class="file-info">
+            <div class="file-name" id="file-name"></div>
+            <div class="file-meta" id="file-meta"></div>
+          </div>
+          <button id="clear-btn" class="btn btn-ghost">Change file</button>
+        </div>
+
+        <div class="tabs" id="mode-tabs">
+          <button class="tab active" data-mode="archive">Archive (gzip)</button>
+          <button class="tab" data-mode="image">Image (JPEG)</button>
+        </div>
+
+        <div class="card controls-card" id="archive-controls">
+          <div class="control-row">
+            <label for="archive-effort">Effort <span id="archive-effort-value">50</span></label>
+            <input type="range" id="archive-effort" min="0" max="100" value="50" />
+          </div>
+          <div class="actions">
+            <button id="archive-compress-btn" class="btn btn-primary">Compress &amp; download</button>
+            <button id="archive-decompress-btn" class="btn btn-secondary">Decompress &amp; download</button>
+          </div>
+        </div>
+
+        <div class="card controls-card hidden" id="image-controls">
+          <div class="control-row">
+            <label for="image-quality">JPEG quality <span id="image-quality-value">80</span></label>
+            <input type="range" id="image-quality" min="1" max="100" value="80" />
+          </div>
+          <div class="control-row checkbox-row">
+            <label><input type="checkbox" id="image-fidelity" checked /> Check pixel fidelity after recompressing</label>
+          </div>
+          <div class="actions">
+            <button id="image-compress-btn" class="btn btn-primary">Recompress &amp; download</button>
+          </div>
+        </div>
+
+        <div class="card progress-card hidden" id="progress-card">
+          <div class="progress-track">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+          <div class="progress-label" id="progress-label">Working…</div>
+        </div>
+
+        <div class="card result-card hidden" id="result-card"></div>
+      </section>
+    </main>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+{
+  "identifier": "default",
+  "description": "Capabilities for the main Sizer window: core APIs (events, so progress reporting works), the dialog plugin (Browse... button), and the opener plugin's default set (reveal-in-folder for the result cards' 'Show in folder' button only -- not open-path, which can launch arbitrary executables and isn't in the default set). File compression itself goes through app-defined commands (commands.rs), not through fs/shell plugins, so no filesystem or process-execution permissions are granted here.",
+  "windows": ["main"],
+  "permissions": ["core:default", "dialog:default", "opener:default"]
+}

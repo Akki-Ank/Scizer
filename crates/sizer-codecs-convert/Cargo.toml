@@ -1,0 +1,19 @@
+[package]
+name = "sizer-codecs-convert"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "File-format conversion, not compression: re-encoding a raster image across common formats (PNG/JPEG/BMP/GIF/TIFF/ICO), composing one or more images into a new PDF, and merging multiple PDFs into one. Deliberately separate from the sizer-codecs-* compression crates -- see docs/ARCHITECTURE.md's 'Multiple codec shapes, not one' note: conversion has no compression-ratio/fidelity contract to check, so it doesn't implement Codec/ImageCodec/DocumentCodec."
+
+[dependencies]
+sizer-core = { path = "../sizer-core" }
+async-trait.workspace = true
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "bmp", "gif", "tiff", "ico"] }
+lopdf = { version = "0.36", default-features = false }
+printpdf = { version = "0.7" }
+tokio = { version = "1", default-features = false, features = ["rt"] }
+
+[dev-dependencies]
+tokio = { version = "1", default-features = false, features = ["macros", "rt-multi-thread"] }

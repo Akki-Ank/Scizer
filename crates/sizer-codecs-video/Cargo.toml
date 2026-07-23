@@ -1,0 +1,16 @@
+[package]
+name = "sizer-codecs-video"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Video recompression by shelling out to a system-installed ffmpeg/ffprobe -- Sizer never links, bundles, or distributes FFmpeg itself, so FFmpeg's own GPL/LGPL licensing is the invoking user's build, not Sizer's. Native-only (no wasm32: this depends on tokio::process, which needs a real OS)."
+
+[dependencies]
+sizer-core = { path = "../sizer-core" }
+async-trait.workspace = true
+tokio = { version = "1", default-features = false, features = ["process", "io-util", "rt"] }
+
+[dev-dependencies]
+tokio = { version = "1", default-features = false, features = ["macros", "rt-multi-thread"] }
